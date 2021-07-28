@@ -1,0 +1,14 @@
+%chk=N2_UB3LYP-aug-cc-pVDZ-Water-Opt.chk
+%mem=500MW
+%nproc=7
+#p opt=(maxcycles=777) freq ub3lyp/aug-cc-pVDZ scrf=(cpcm,solvent=Water) pop=(Bonding,AllOrbitals,mk,no,nboread)
+
+N2_UB3LYP-aug-cc-pVDZ
+
+0 1
+N          -2.59183        -0.53088        -0.10485
+N          -3.70799        -0.57526        -0.14082
+
+$nbo bndidx $end
+
+nprocshared=7

@@ -1,0 +1,16 @@
+Sum of electronic and zero-point Energies=           -109.537630
+Sum of electronic and thermal Energies=              -109.535269
+Sum of electronic and thermal Enthalpies=            -109.534325
+Sum of electronic and thermal Free Energies=         -109.556077
+
+Wiberg:
+  0.0000   3.0341 
+  3.0341   0.0000 
+
+Freq:
+ 2445.7381 
+
+Charge:
+N; Atom; Mulliken; APT; NBO; ESP;
+1; N;  0.000;  0.000; -0.000;  0.000;
+2; N;  0.000;  0.000;  0.000; -0.000;
