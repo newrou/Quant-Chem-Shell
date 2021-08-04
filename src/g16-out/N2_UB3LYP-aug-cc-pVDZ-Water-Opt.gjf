@@ -1,7 +1,7 @@
 %chk=N2_UB3LYP-aug-cc-pVDZ-Water-Opt.chk
 %mem=500MW
 %nproc=7
-#p opt=(maxcycles=777) freq ub3lyp/aug-cc-pVDZ scrf=(cpcm,solvent=Water) pop=(Bonding,AllOrbitals,mk,no,nboread)
+#p Geom=AllCheck opt=(maxcycles=777) freq ub3lyp/aug-cc-pVDZ scrf=(cpcm,solvent=Water) pop=(Bonding,AllOrbitals,mk,no,nboread)
 
 N2_UB3LYP-aug-cc-pVDZ
 

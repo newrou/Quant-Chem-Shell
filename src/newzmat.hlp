@@ -1,0 +1,208 @@
+C1NewZMat
+C    This program converts molecular geometry specifications between
+C    different formats, as specified on the command line.  The command
+C    line is of the form:
+C    newzmat switch switch ... input-file output-file chk-file 2nd-input-file
+C    under Unix and VMS.
+C    Switches always begin with a dash (-).
+C    In addition, this program can convert between various connectivity
+C    specifications.  Two input decks are read, with the coordinates
+C    taken from the first, but then the choices of bonded atoms, angles,
+C    and dihedral angles are taken from the second input deck, and the
+C    values of the geometrical parameters from the second deck are
+C    adjusted to give the coordinates implied by the first deck.
+C2Input
+C    The input file name must be specified, but if no text file is being
+C    read (e.g., for -ichk) then the name is only used to provide the
+C    default for the other file names.
+C    The switches controlling the input format are:
+C     -izmat  ... structure from z-matrix, default extension .COM.
+C                 this is the default.
+C     -ichk   ... structure from z-matrix on checkpoint file.
+C     -ichkxyz .. structure from cartesian coordinates on checkpoint file.
+C     -imopac ... structure in mopac format, default extension .INP
+C     -imoparc... structure in mopac7 .arc format, default extension .ARC
+C     -imodel ... structure from Model/MM2 file, default extension .DAT
+C                 an input file name is necessary and will be prompted
+C                 for if not specified.
+C     -immodel... structure from MacroModel file, default extension .DAT
+C                 an input file name is necessary and will be prompted
+C                 for if not specified.
+C     -iummodel . structure from unformatted MacroModel file, default
+C                 extension .DAT.
+C     -ixyz ..... structure in cartesian coordinates, with one atomic
+C                 type (number or symbol) followed by coordinates on
+C                 each line.  default extension .XYZ
+C     -icon ..... structure in a quipu .con file.
+C     -ibkv ..... structure in brookhaven data format (pdb file).
+C     -ibgf ..... structure in biograf internal format.
+C     -ient ..... structure in brookhaven data format (pdb file).
+C     -ipcmodel . structure in pcmodel format
+C     -ipdb ..... structure in brookhaven data format (pdb file).
+C     -ifrag .... structure in Semichem fragment format (.frg file)
+C     -connect .. Read connectivity from gaussian input file.
+C     -ubohr  ... input distances from input stream in bohr.
+C     -urad   ... input angles from input stream in radians.
+C     -ifract ... structure in cartesian z-matrix format, but in
+C                 fractional coordinates.
+C     -repl IJK . Replicate structure I times in the X direction, etc.
+C     -offset N . Use offset of N angstroms in replicating.  Default is 10.
+C     -badstruc . Choose an atom ordering which makes distant atoms near
+C                 each other in the list.
+C     -goodstruc  Choose an atom ordering which makes close atoms near
+C                 each other in the list.
+C    A dash may be used to skip the input file name if an output file
+C    or checkpoint but not input file is to be given.
+C2Output
+C    If no output file is specified but an input file was, the output
+C    file name is the same as the input file name.
+C    The switches controlling the output format are:
+C     -mof1   ..... use macromodel format 1.
+C     -mof2   ..... use macromodel format 2 (the default).
+C     -obgf ....... output in biograf internal format.
+C     -obkv ....... output in brookhaven data format (pdb file).
+C     -ocache ..... output in Tektronix CaChe(TM) data format.
+C     -ocart ...... output of Gaussian input file, but with cartesian
+C                   coordinates.  The default
+C     -ochk ....... output in z-matrix format to checkpoint file.
+C     -ocon ....... output a quipu .con file.
+C     -oent ....... output in brookhaven data format (pdb file).
+C     -ommodel .... output in macromodel format.  if the input did not
+C                   include full connectivity information, it will be
+C                   guessed based upon bond distances.  This will not
+C                   generate a valid Kekule-type structure for resonant
+C                   systems; rather, all bond orders will be rounded
+C                   up to the nearest integer (i.e., benzene will come
+C                   out with 6 double bonds).
+C     -omopac ..... output in mopac format to output stream.
+C     -opcmodel ... output in pcmodel format.
+C     -opdb ....... output in brookhaven data format (pdb file).
+C     -ofrag ...... output in Semichem fragment format (.frg file)
+C     -oppp ....... output for some PPP program.
+C     -oxyz ....... output of just cartesian coordinates
+C     -ozindo ..... output for some unspecified version of ZIndo.
+C     -ozmat  ..... output in z-matrix format to output stream.
+C     -prompt ..... prompt for command and title cards and charge and
+C                   multiplicity.  By default, these are generated for
+C                   the most common case based on the input.
+C     -optprompt .. prompt for which parameters should be optimized.  By
+C                   default, all parameters not fixed by symmetry are
+C                   optimized.
+C     -ofract ..... Output as cartesian z-matrix but in fractional
+C                   coordinates.
+C2Checkpoint
+C     The checkpoint file is specified by the third file name.  If a
+C     checkpoint file is required but not named, the name of the input
+C     file is used for the checkpoint file name.
+C2Template
+C     NewZMat can optionally read a second input deck and merge data
+C     from the two files.  By default, all available data from the
+C     first file is used, taking only information from the second file
+C     where none is available from the first, but this can be overridden
+C     for each type of information.  The switches for the format of the
+C     input are the same as for -i but start with -t, e.g. -tpdb, -tzmat,
+C     or -tchk.  If the 2nd input file is text (i.e., not the checkpoint
+C     file, then its name is the fourth file name on the command line.
+C     Only one chk file can be read; it will be over-written if -ochk is
+C     combined with -ichk or -tchk.
+C     The switches controlling data selection are all of the form -sXXX1
+C     or -sXXX2 to select the first or second file as the source.  XXX can
+C     be:
+C     XYZ ... Geometry (coordinates, nuclear charges, etc.)
+C     MMT ... MM types.
+C     MMC ... MM charges; if copied, also copied to link atoms if there is
+C             ONIOM data present.
+C     PDB ... Secondary structure information.
+C     Con ... Connectivity.
+C     Oni ... ONIOM layer and link atom data.
+C     Mic ... MicOpt (freezing/optimizing atoms and rigid block info).
+C2Other_Switches
+C     The other switches are:
+C     -allbonded .. in generating new connectivity, assume all atoms
+C                   are bonded.
+C     -bmodel ..... used standard model B bond lengths as well as
+C                   JMM values in fudging.
+C     -density xx . Generate natural orbitals from density xx for
+C                   CaChe molstruct file.  Only useful if input is
+C                   from a checkpoint file.  Can be the number or
+C                   hf, qci, mp2, etc.
+C     -fixord ..... Reorder atoms to keep close atoms near each other
+C                   in the list, based on the read or generated
+C                   connectivity.
+C     -fixdist R .. Reorder atoms to keep close atoms near each other
+C                   in the list, based on distance threshold R Bohr.  R=0
+C                   defaults to 9 Angstroms.
+C     -fudge ...... fudge bond distances to make sure they're
+C                   reasonable, using JMM values. the default for model
+C                   input and not applicable elsewhere.
+C     -gencon ..... Generate connectivity information using internal
+C                   radii.
+C     -genfc ...... generate initial force constants for Gaussian.
+C     -getfile .... insist on file name specification.
+C     -lsymm ...... use loose cutoffs for determining symmetry.  implies
+C                   symav
+C     -nofudge .... do not fudge bond distances.  the default and only
+C                   choice for all cases except model input.
+C     -mdensity xx .Subtract generalized density xx to make difference
+C                   density for natural orbitals for a CaChe molstruct
+C                   file.  Only useful if input is from a checkpoint
+C                   file.
+C     -nobond ..... Assign no bonds in generating connectivity.
+C     -nogetfile .. cancels -getfile.
+C     -noround .... turns off rounding of z-matrix parameters.
+C     -nosymav .... turns off averaging of input coordinates.
+C     -nosymm ..... turns off all use of symmetry.
+C     -order ...... keep the order as close as possible to the input
+C                   order.
+C     -qmul ....... Pick up Mulliken charges from the chk file and use
+C                   them for the MM charges (of both regular atoms and
+C                   link atoms).
+C     -qesp ....... Use ESP-fit charges from the chk file as MM charges.
+C     -qaim ....... Use AIM charges from the chk file as MM charges.
+C     -qnpa ....... Use NPA charges from the chk file as MM charges.
+C     -qapt ....... Use APT charges from the chk file as MM charges.
+C     -round ...... rounds z-matrix parameters to 0.01 A and 1 degree.
+C     -step n ..... take geometry from step N of an optimization which has
+C                   failed to converge.
+C     -ot list .... take geometry from the listed structures in OT data
+C                   on the chk file.
+C     -ngeom n .... take geometry from Nth structure in OT data on the chk
+C                   file.
+C     -permute .... Read in a new order for atoms and permute accordingly.
+C     -sort ....... Sort atoms or residues by quadrant.
+C     -sortatoms .. Sort atoms even if residue info is present.
+C     -symav ...... average input coordinates using approximate symmetry
+C                   operations to achieve exact symmetry.
+C     -symm ....... assign molecular symmetry.
+C     -trackio .... generate profiling information.
+C     -tsymm ...... use tight cutoffs for determining symmetry.  The
+C                   default for everything.
+C     -rebuildzmat  Build a new Z-matrix rather than using the read-in
+C  or -redoz        one (as would be the default for Z-Matrix or MOPAC
+C                   input).  Implies -gencon.
+C      -noxtra      Do not place force constants or connectivity in the
+C                   generated input file
+C     -btranslate   read a translation vector (in Bohr) from the input
+C                   stream, followed by a blank line.
+C     -translate    read a translation vector (in Angstroms) from the
+C                   stream, followed by a blank line.
+C2Examples
+C3MOPAC_to_Gaussian
+C Read MOPAC data from input stream, write to output.
+C     $ NewZMat -imopac
+C     .... mopac data ....
+C Read MOPAC data from file X.Inp, write Z-Matrix to X.Com:
+C     $ NewZMat -imopac x
+C (no input data follows)
+C Read MOPAC data from file X.Inp, write Z-Matrix to Y.Com:
+C     $ NewZMat -imopac x y
+C (no input data follows)
+C3Model_to_MOPAC
+C Read model output in file X.Dat and form mopac input deck X.inp,
+C prompting for new command and title cards:
+C     $ NewZMat -imodel -omopac -prompt x
+C3ZMatrix_to_Chk
+C Read Z-matrix from input stream and write checkpoint file x.chk:
+C     $ NewZMat -ochk - - x
+C     .... z-matrix follows ...
+C Note the use of dashes to skip the input and output file names.
