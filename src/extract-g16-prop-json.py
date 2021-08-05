@@ -200,6 +200,70 @@ def read_charge_NBO(name):
     return oldoldcharges, atoms, m
 
 
+def read_opt_geom(name):
+    flag1 = 0
+    flagstr1 = ' Optimization completed.'
+    flagstr2 = '                          Input orientation:'
+    flagstr3 = '                         Standard orientation:'
+    flagend = ' ---------------------------------------------------------------------'
+    with open( '%s' % (name), 'r') as f:
+	line = f.readline()
+	while line:
+	    if line.startswith(flagstr1) : flag1=1
+	    if flag1==1 and line.startswith(flagstr2) :
+		line = f.readline()
+		line = f.readline()
+		line = f.readline()
+		line = f.readline()
+		line = f.readline()
+		atoms = []
+		while not flagend in line :
+		    lst = line.strip().split()
+		    print line
+		    if len(lst)>1 : atoms.append(lst)
+		    line = f.readline()
+	    if flag1==1 and line.startswith(flagstr3) :
+		line = f.readline()
+		line = f.readline()
+		line = f.readline()
+		line = f.readline()
+		line = f.readline()
+		satoms = []
+		while not flagend in line :
+		    lst = line.strip().split()
+		    print line
+		    if len(lst)>1 : satoms.append(lst)
+		    line = f.readline()
+	    line = f.readline()
+    f.close()
+    print atoms
+    print satoms
+    return atoms, satoms
+
+# Optimization completed.
+#    -- Stationary point found.
+###
+#                          Input orientation:                          
+# ---------------------------------------------------------------------
+# Center     Atomic      Atomic             Coordinates (Angstroms)
+# Number     Number       Type             X           Y           Z
+# ---------------------------------------------------------------------
+#      1          7           0       -2.598568   -0.531148   -0.105067
+#      2          7           0       -3.701252   -0.574992   -0.140603
+# ---------------------------------------------------------------------
+#                         Standard orientation:                         
+# ---------------------------------------------------------------------
+# Center     Atomic      Atomic             Coordinates (Angstroms)
+# Number     Number       Type             X           Y           Z
+# ---------------------------------------------------------------------
+#      1          7           0        0.000000    0.000000    0.552063
+#      2          7           0        0.000000   -0.000000   -0.552063
+# ---------------------------------------------------------------------
+# Rotational constants (GHZ):           0.0000000          59.2087908          59.2087908
+
+
+
+
 
 
 # main
@@ -228,6 +292,7 @@ Ch_NBO, Atoms, M = read_charge_NBO(sysname)
 Ch_APT, Atoms, M = read_charge(sysname, 'APT')
 Ch_ESP, Atoms, M = read_charge(sysname, 'ESP')
 Ch_Mulliken, Atoms, M = read_charge(sysname, 'Mulliken')
+Geom, SGeom = read_opt_geom(sysname)
 #print Atoms
 #print Ch_NBO
 #print Ch_APT
