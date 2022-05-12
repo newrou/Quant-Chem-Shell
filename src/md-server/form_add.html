@@ -1,0 +1,15 @@
+{{if .Success}}
+    <h1>Task added!</h1>
+{{else}}
+    <h1>Add new task:</h1>
+    <form method="POST">
+        <label>Title:</label> <input type="text" name="Title"> <br/>
+        <label>Temperature (K):</label> <input type="text" name="Temp"> <br/>
+        <label>Pressure (bar):</label> <input type="text" name="Pressure"> <br/>
+        <label>Number of tasks for statistics:</label> <input type="text" name="Stat"> <br/>
+        <label>Compounds (SMILES, CAS, etc.):</label> <br/>
+        <input type="hidden" name="Status" value="wait">
+        <textarea name="Compounds"></textarea> <br/>
+        <input name="Add" type="submit">
+    </form>
+{{end}}
