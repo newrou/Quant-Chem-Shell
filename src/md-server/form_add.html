@@ -1,5 +1,13 @@
 {{if .Success}}
-    <h1>Task added!</h1>
+<html>
+  <head>
+    <title>Task added!</title>
+    <meta http-equiv="refresh" content="3; url=/add">
+  </head>
+  <body>
+  <h1>Task added!</h1>
+  </body>
+</html>
 {{else}}
     <h1>Add new task:</h1>
     <form method="POST">

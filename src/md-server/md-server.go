@@ -9,10 +9,12 @@ import (
     "time"
     "crypto/md5"
     "log"
+    "os"
 //    "reflect"
 )
 
 var works_dir = "/home/alex/.md-server/works"
+var archiv_dir = "/home/alex/.md-server/archiv"
 
 type Work struct {
     Id           string
@@ -27,6 +29,7 @@ type Work struct {
 
 type PageData struct {
     PageTitle    string
+    Message      string
     WorkList     []Work
 }
 
@@ -66,7 +69,7 @@ func GetWorkList(works []Work) []Work {
 }
 
 func main() {
-    tmpl_add := template.Must(template.ParseFiles("form_add.html"))
+
 
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         data := PageData{
@@ -78,7 +81,27 @@ func main() {
         tmpl_list.Execute(w, data)
     })
 
+
+    http.HandleFunc("/remove", func(w http.ResponseWriter, r *http.Request) {
+	tmpl_auto := template.Must(template.ParseFiles("form_auto.html"))
+        if r.Method != http.MethodGet {
+            tmpl_auto.Execute(w, nil)
+            return
+        }
+	Id := r.FormValue("id")
+	p1 := fmt.Sprintf("%s/%s", works_dir, Id)
+	p2 := fmt.Sprintf("%s/%s", archiv_dir, Id)
+	e := os.Rename(p1, p2)
+	if e != nil { /* log.Fatal(e) */ }
+	msg := fmt.Sprintf("Remove works: %s", Id)
+	fmt.Println(msg)
+        data := PageData { Message: msg, }
+        tmpl_auto.Execute(w, data)
+    })
+
+
     http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
+	tmpl_add := template.Must(template.ParseFiles("form_add.html"))
         if r.Method != http.MethodPost {
             tmpl_add.Execute(w, nil)
             return
@@ -96,13 +119,17 @@ func main() {
         dat, err := json.MarshalIndent(work, "", " ")
         if err != nil { fmt.Println(err) }
         utime := int32(time.Now().Unix())
-	hmd5 := md5.Sum([]byte(work.Title))
-	fname := fmt.Sprintf("%s/%d-%x", works_dir, utime, hmd5)
+	hmd5 := md5.Sum([]byte(dat))
+	work.Id = fmt.Sprintf("%d-%x", utime, hmd5)
+        dat, err = json.MarshalIndent(work, "", " ")
+        if err != nil { fmt.Println(err) }
+	fname := fmt.Sprintf("%s/%s", works_dir, work.Id)
         _ = ioutil.WriteFile(fname, dat, 0644)
         fmt.Println(fname, string(dat))
         _ = work
         tmpl_add.Execute(w, struct{ Success bool }{true})
     })
+
 
     http.ListenAndServe(":8080", nil)
 }
