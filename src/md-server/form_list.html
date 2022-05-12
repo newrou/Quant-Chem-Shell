@@ -1,10 +1,35 @@
+<html>
+<head>
+<style>
+.wait {
+  color: gray;
+  text-align: left;
+} 
+.run {
+  color: black;
+  text-align: left;
+  font-weight: bold;
+} 
+.done {
+  color: green;
+  text-align: left;
+} 
+.error {
+  color: red;
+  text-align: left;
+} 
+</style>
+</head>
+<body>
 <h1>{{.PageTitle}}</h1>
 <ul>
-    {{range .Todos}}
+    {{range .WorkList}}
         {{if .Done}}
-            <li class="done">{{.Title}}</li>
+            <li class="{{.Status}}">{{.Title}} - {{.Status}} [{{.Id}}]</li>
         {{else}}
-            <li>{{.Title}}</li>
+            <li class="{{.Status}}">{{.Title}} - {{.Status}} [{{.Id}}]</li>
         {{end}}
     {{end}}
 </ul>
+</body>
+</html>

@@ -9,50 +9,72 @@ import (
     "time"
     "crypto/md5"
     "log"
+//    "reflect"
 )
 
 var works_dir = "/home/alex/.md-server/works"
 
-type WorkDetails struct {
+type Work struct {
+    Id           string
     Title        string
     Temp         string
     Pressure     string
     Stat         string
     Compounds    string
     Status       string
-}
-
-type Todo struct {
-    Title   string
-    Status  string
     Done    bool
 }
 
-type TodoPageData struct {
-    PageTitle string
-    Todos     []Todo
+type PageData struct {
+    PageTitle    string
+    WorkList     []Work
 }
 
-func GetWorkList(works []Todo) []Todo {
+func LoadWork(fname, id string) Work {
+    var w Work
+    content, err := ioutil.ReadFile(fname)
+    if err != nil { log.Fatal("Error when opening file: ", err) }
+    var data map[string]interface{}
+    err = json.Unmarshal(content, &data)
+    if err != nil { log.Fatal("Error during Unmarshal(): ", err) }
+//    fmt.Println(data)
+//    fmt.Println(reflect.TypeOf(data["Title"]), data["Title"])
+    w.Id = id
+    w.Title = fmt.Sprintf("%s", data["Title"])
+    w.Temp = fmt.Sprintf("%s", data["Temp"])
+    w.Pressure = fmt.Sprintf("%s", data["Pressure"])
+    w.Stat = fmt.Sprintf("%s", data["Stat"])
+    w.Compounds = fmt.Sprintf("%s", data["Compounds"])
+    w.Status = fmt.Sprintf("%s", data["Status"])
+    w.Done = false
+    return w
+}
+
+func GetWorkList(works []Work) []Work {
     files, err := ioutil.ReadDir(works_dir)
     if err != nil { log.Fatal(err) }
     for _, file := range files {
 //        fmt.Println(file.Name(), file.IsDir())
-	works = append(works, Todo{Title: file.Name(), Status: "done", Done: false})
+	fname := fmt.Sprintf("%s/%s", works_dir, file.Name())
+//        fmt.Println(fname)
+	w := LoadWork(fname, file.Name())
+//        fmt.Println(w, w.Status)
+	works = append(works, w)
+//	works = append(works, Work{Title: fname, Status: "done", Done: false})
     }
     return works
 }
 
 func main() {
-    tmpl_list := template.Must(template.ParseFiles("form_list.html"))
     tmpl_add := template.Must(template.ParseFiles("form_add.html"))
 
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        data := TodoPageData{
+        data := PageData{
             PageTitle: "List of works:",
-            Todos: []Todo{},
+            WorkList: []Work{},
         }
-	data.Todos = GetWorkList(data.Todos)
+	tmpl_list := template.Must(template.ParseFiles("form_list.html"))
+	data.WorkList = GetWorkList(data.WorkList)
         tmpl_list.Execute(w, data)
     })
 
@@ -62,7 +84,7 @@ func main() {
             return
         }
 
-        work := WorkDetails{
+        work := Work{
             Title:     r.FormValue("Title"),
             Temp:      r.FormValue("Temp"),
             Pressure:  r.FormValue("Pressure"),
