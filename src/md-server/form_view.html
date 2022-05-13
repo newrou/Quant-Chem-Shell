@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>View work</title>
+    <!-- <meta http-equiv="refresh" content="3; url=/view?id={{.Id}}"> -->
+  </head>
+  <body>
+    <h1>View work:</h1>
+    <form method="POST">
+        <label>Id: {{.Id}}</label> <input type="hidden" name="Id" value="{{.Id}}"> <br/>
+        <label>Status: {{.Status}}</label> <input type="hidden" name="Status" value="{{.Status}}"> <br/>
+        <label>Title:</label> <input type="text" name="Title" value="{{.Title}}"> <br/>
+        <label>Temperature (K):</label> <input type="text" name="Temp" value="{{.Temp}}"> <br/>
+        <label>Pressure (bar):</label> <input type="text" name="Pressure" value="{{.Pressure}}"> <br/>
+        <label>Number of tasks for statistics:</label> <input type="text" name="Stat" value="{{.Stat}}"> <br/>
+        <label>Compounds (SMILES, CAS, etc.):</label> <br/>
+        <textarea name="Compounds" >{{.Compounds}}</textarea> <br/>
+        <!-- <input name="Send" type="submit"> -->
+    </form>
+  </body>
+</html>

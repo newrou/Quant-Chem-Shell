@@ -1,23 +1,30 @@
 {{if .Success}}
 <html>
   <head>
-    <title>Task added!</title>
+    <title>Work added!</title>
     <meta http-equiv="refresh" content="3; url=/add">
   </head>
   <body>
-  <h1>Task added!</h1>
+  <h1>Work added!</h1>
   </body>
 </html>
 {{else}}
-    <h1>Add new task:</h1>
+<html>
+  <head>
+    <title>Add new work</title>
+  </head>
+  <body>
+    <h1>Add new work:</h1>
     <form method="POST">
         <label>Title:</label> <input type="text" name="Title"> <br/>
         <label>Temperature (K):</label> <input type="text" name="Temp"> <br/>
         <label>Pressure (bar):</label> <input type="text" name="Pressure"> <br/>
         <label>Number of tasks for statistics:</label> <input type="text" name="Stat"> <br/>
         <label>Compounds (SMILES, CAS, etc.):</label> <br/>
-        <input type="hidden" name="Status" value="wait">
         <textarea name="Compounds"></textarea> <br/>
-        <input name="Add" type="submit">
+        <input type="hidden" name="Status" value="wait">
+        <input name="Send" type="submit">
     </form>
+  </body>
+</html>
 {{end}}
