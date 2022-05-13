@@ -13,8 +13,9 @@ import (
 //    "reflect"
 )
 
-var works_dir = "/home/alex/.md-server/works"
-var archiv_dir = "/home/alex/.md-server/archiv"
+var conf_dir = "/home/alex/.md-server/"
+var works_dir = conf_dir + "works"
+var archiv_dir = conf_dir + "archiv"
 
 type Work struct {
     Id           string
@@ -37,10 +38,10 @@ func LoadWork(id string) Work {
     var w Work
     fname := fmt.Sprintf("%s/%s", works_dir, id)
     content, err := ioutil.ReadFile(fname)
-    if err != nil { log.Fatal("Error when opening file: ", err) }
+    if err != nil { /*log.Fatal("Error when opening file: ", err)*/ return w }
     var data map[string]interface{}
     err = json.Unmarshal(content, &data)
-    if err != nil { log.Fatal("Error during Unmarshal(): ", err) }
+    if err != nil { /*log.Fatal("Error during Unmarshal(): ", err)*/ return w }
 //    fmt.Println(reflect.TypeOf(data["Title"]), data["Title"])
     w.Id = id
     w.Title = fmt.Sprintf("%s", data["Title"])
@@ -55,7 +56,7 @@ func LoadWork(id string) Work {
 
 func GetWorkList(works []Work) []Work {
     files, err := ioutil.ReadDir(works_dir)
-    if err != nil { log.Fatal(err) }
+    if err != nil { /*log.Fatal(err)*/ return works }
     for _, file := range files {
 	w := LoadWork(file.Name())
 	works = append(works, w)
@@ -64,7 +65,9 @@ func GetWorkList(works []Work) []Work {
 }
 
 func main() {
-
+    file, err := os.OpenFile(conf_dir + "md-server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+    // if err != nil { log.Fatal(err) }
+    if err == nil { log.SetOutput(file) }
 
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         data := PageData{
@@ -74,7 +77,7 @@ func main() {
 	tmpl_list := template.Must(template.ParseFiles("form_list.html"))
 	data.WorkList = GetWorkList(data.WorkList)
         tmpl_list.Execute(w, data)
-	fmt.Println("View list of works")
+	log.Println("View list of works")
     })
 
 
@@ -87,7 +90,7 @@ func main() {
 	Id := r.FormValue("id")
 	data := LoadWork(Id)
         tmpl_view.Execute(w, data)
-	fmt.Println("View work: ", Id)
+	log.Println("View work: ", Id)
     })
 
 
@@ -105,7 +108,7 @@ func main() {
 	msg := fmt.Sprintf("Remove work: %s", Id)
         data := PageData { Message: msg, }
         tmpl_auto.Execute(w, data)
-	fmt.Println("Remove work: ", Id)
+	log.Println("Remove work: ", Id)
     })
 
 
@@ -135,7 +138,7 @@ func main() {
 //        fmt.Println(fname, string(dat))
         _ = work
         tmpl_add.Execute(w, struct{ Success bool }{true})
-	fmt.Println("Add new work: ", work.Id)
+	log.Println("Add new work: ", work.Id)
     })
 
 
