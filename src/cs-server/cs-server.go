@@ -13,7 +13,7 @@ import (
 //    "reflect"
 )
 
-var conf_dir = "/home/alex/.md-server/"
+var conf_dir = ".cs-server/"
 var works_dir = conf_dir + "works"
 var archiv_dir = conf_dir + "archiv"
 
@@ -65,7 +65,7 @@ func GetWorkList(works []Work) []Work {
 }
 
 func main() {
-    file, err := os.OpenFile(conf_dir + "md-server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+    file, err := os.OpenFile(conf_dir + "cs-server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
     // if err != nil { log.Fatal(err) }
     if err == nil { log.SetOutput(file) }
 
@@ -91,6 +91,25 @@ func main() {
 	data := LoadWork(Id)
         tmpl_view.Execute(w, data)
 	log.Println("View work: ", Id)
+    })
+
+
+    http.HandleFunc("/set-status", func(w http.ResponseWriter, r *http.Request) {
+	tmpl_view := template.Must(template.ParseFiles("form_view.html"))
+        if r.Method != http.MethodGet {
+            tmpl_view.Execute(w, nil)
+            return
+        }
+	Id := r.FormValue("id")
+	Status := r.FormValue("status")
+	work := LoadWork(Id)
+	work.Status = Status
+        dat, err := json.MarshalIndent(work, "", " ")
+        if err != nil { fmt.Println(err) }
+	fname := fmt.Sprintf("%s/%s", works_dir, Id)
+        _ = ioutil.WriteFile(fname, dat, 0644)
+        tmpl_view.Execute(w, work)
+	log.Println("Set status work", Id, "to", Status)
     })
 
 

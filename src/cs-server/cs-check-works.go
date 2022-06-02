@@ -11,7 +11,7 @@ import (
     "strings"
 )
 
-var conf_dir = "/home/alex/.md-server/"
+var conf_dir = ".cs-server/"
 var works_dir = conf_dir + "works/"
 var archiv_dir = conf_dir + "archiv/"
 var run_dir = conf_dir + "run/"
@@ -119,7 +119,7 @@ func CheckWorkList() {
 }
 
 func main() {
-    file, err := os.OpenFile(conf_dir + "md-server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+    file, err := os.OpenFile(conf_dir + "cs-server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
     // if err != nil { log.Fatal(err) }
     if err == nil { log.SetOutput(file) }
 
