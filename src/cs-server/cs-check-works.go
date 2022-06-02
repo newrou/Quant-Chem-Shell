@@ -102,18 +102,21 @@ func CheckWorkList() {
     if err != nil { /*log.Fatal(err)*/ return }
     for _, file := range files {
 	w, _ := LoadWork(file.Name())
-	Compounds := strings.Split(w.Compounds, "\r\n")
-	smi := Compounds[0]
-	for i := range Compounds[1:] {
-	    smi = smi + "." + Compounds[i]
+	if w.Status=="wait" {
+	    Compounds := strings.Split(w.Compounds, "\r\n")
+	    smi := Compounds[0]
+	    for i := range Compounds[1:] {
+		smi = smi + "." + Compounds[i]
+	    }
+	    fmt.Println(w.Id, w.Title)
+	    for i := range Compounds {
+		Compound := Compounds[i]
+		if len(Compound)<1 { continue }
+		fmt.Println("    ", Compound)
+	    }
+	    MakeWork(w, smi)
+	    log.Println("Prepare work:", w.Id)
 	}
-	fmt.Println(w.Id, w.Title)
-	for i := range Compounds {
-	    Compound := Compounds[i]
-	    if len(Compound)<1 { continue }
-	    fmt.Println("    ", Compound)
-	}
-	MakeWork(w, smi)
     }
     return
 }

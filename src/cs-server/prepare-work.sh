@@ -12,3 +12,5 @@ do
     echo "    Generate v$n.xyz"
     babel -ican $1$2/mol.can -oxyz --gen3D > $1$2/v$n.xyz
 done
+
+curl "http://localhost:8080/set-status?id=$2&status=prepared"

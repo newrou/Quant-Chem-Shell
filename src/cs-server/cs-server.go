@@ -10,12 +10,14 @@ import (
     "crypto/md5"
     "log"
     "os"
+    "strconv"
 //    "reflect"
 )
 
 var conf_dir = ".cs-server/"
 var works_dir = conf_dir + "works"
 var archiv_dir = conf_dir + "archiv"
+var run_dir = conf_dir + "run"
 
 type Work struct {
     Id           string
@@ -88,8 +90,16 @@ func main() {
             return
         }
 	Id := r.FormValue("id")
-	data := LoadWork(Id)
-        tmpl_view.Execute(w, data)
+	work := LoadWork(Id)
+        tmpl_view.Execute(w, work)
+	if work.Status=="prepared" {
+	    n, _ := strconv.Atoi(work.Stat)
+	    fmt.Fprintf(w, "<ul>")
+	    for i := 1; i<(n+1); i++ {
+		fmt.Fprintf(w, "<li><a href=\"/get-work-file?id=%s&file=v%d.xyz\" target=\"_blank\">v%d.xyz</a></li>", Id, i, i)
+	    }
+	    fmt.Fprintf(w, "</ul>")
+	}
 	log.Println("View work: ", Id)
     })
 
@@ -110,6 +120,20 @@ func main() {
         _ = ioutil.WriteFile(fname, dat, 0644)
         tmpl_view.Execute(w, work)
 	log.Println("Set status work", Id, "to", Status)
+    })
+
+
+    http.HandleFunc("/get-work-file", func(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodGet {
+            return
+        }
+	Id := r.FormValue("id")
+	wFile := r.FormValue("file")
+	fname := fmt.Sprintf("%s/%s/%s", run_dir, Id, wFile)
+	content, _ := ioutil.ReadFile(fname)
+	fmt.Printf("file %s content:\n %s", fname, content)
+	fmt.Fprintf(w, "%s", content)
+	log.Println("Get file", wFile, " for", Id)
     })
 
 
